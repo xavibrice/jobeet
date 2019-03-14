@@ -6,6 +6,7 @@ use App\Entity\Category;
 use App\Entity\Job;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -14,18 +15,16 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Job[]    findAll()
  * @method Job[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class JobRepository extends ServiceEntityRepository
+class JobRepository extends EntityRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Job::class);
-    }
 
     public function findActiveJobs(int $categoryId = null)
     {
         $qb = $this->createQueryBuilder('j')
             ->where('j.expiresAt > :date')
+            ->andWhere('j.activated = :activated')
             ->setParameter('date', new \DateTime())
+            ->setParameter('activated', true)
             ->orderBy('j.expiresAt', 'DESC');
 
         if ($categoryId) {
@@ -36,31 +35,40 @@ class JobRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int $id
+     *
+     * @throws NonUniqueResultException
+     *
+     * @return Job|null
+     */
     public function findActiveJob(int $id) : ?Job
     {
         return $this->createQueryBuilder('j')
             ->where('j.id = :id')
             ->andWhere('j.expiresAt > :date')
+            ->andWhere('j.activated = :activated')
             ->setParameter('id', $id)
             ->setParameter('date', new \DateTime())
+            ->setParameter('activated', true)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-
     /**
      * @param Category $category
+     *
      * @return AbstractQuery
-     * @throws \Exception
      */
     public function getPaginatedActiveJobsByCategoryQuery(Category $category) : AbstractQuery
     {
         return $this->createQueryBuilder('j')
             ->where('j.category = :category')
             ->andWhere('j.expiresAt > :date')
+            ->andWhere('j.activated = :activated')
             ->setParameter('category', $category)
             ->setParameter('date', new \DateTime())
+            ->setParameter('activated', true)
             ->getQuery();
     }
-
 }

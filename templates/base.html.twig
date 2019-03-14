@@ -22,7 +22,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <div>
-                        <a href="#" class="btn btn-default navbar-btn">Post a Job</a>
+                        <a href="{{ path('job.create') }}" class="btn btn-default navbar-btn">Post a Job</a>
                     </div>
                 </li>
             </ul>
@@ -31,7 +31,17 @@
 </nav>
 
 <div class="container">
-    {% block body %}{% endblock %}
+    {% block body %}
+        <div class="media" style="margin-top: 60px;">
+            {% if job.logo %}
+                <div class="media-left">
+                    <a href="{{ job.url }}" target="_blank">
+                        <img class="media-object" style="width:100px; height:100px;" src="{{ asset(jobs_web_directory ~ '/' ~ job.logo.filename) }}">
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% endblock %}
 </div>
 </body>
 </html>
