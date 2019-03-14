@@ -29,7 +29,7 @@ class Job
     private $company;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $logo;
 
@@ -290,6 +290,10 @@ class Job
     {
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+
+        if (!$this->expiresAt) {
+            $this->expiresAt = (clone $this->createdAt)->modify('+30 days');
+        }
     }
 
     /**
